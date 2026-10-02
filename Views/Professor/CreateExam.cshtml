@@ -1,0 +1,182 @@
+@model ExamCreateViewModel
+@{
+    ViewData["Title"]="ساخت امتحان";
+    var courses=ViewBag.Courses as List<object>;
+}
+
+<div class="card">
+    <h1>ساخت امتحان جدید</h1>
+
+    @if (ViewBag.Error!=null)
+    {
+        <div class="alert alert-error">@ViewBag.Error</div>
+    }
+
+    <form method="post" action="/Professor/CreateExam" id="examForm">
+        <div class="form-group">
+            <label>درس</label>
+            <select name="CourseID" required>
+                <option value="">-- انتخاب درس --</option>
+                @if (courses!=null)
+                {
+                    foreach (dynamic c in courses)
+                    {
+                        <option value="@c.CourseID" selected="@(Model.CourseID==c.CourseID)">@c.CourseName</option>
+                    }
+                }
+            </select>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>حداکثر نمره این امتحان (سقف ۲۰)</label>
+                <input type="number" step="0.01" min="0" max="20" name="MaxScore" value="@(Model.MaxScore?.ToString() ?? "20")" required />
+            </div>
+            <div class="form-group"></div>
+        </div>
+
+        <div class="form-group">
+            <label>نام امتحان</label>
+            <input type="text" name="ExamName" value="@Model.ExamName" required />
+        </div>
+
+        <div class="form-group">
+            <label>زمان شروع</label>
+            <input type="datetime-local" name="StartTime" value="@(Model.StartTime?.ToString("yyyy-MM-ddTHH:mm"))" required />
+        </div>
+
+        <div class="form-group">
+            <label>زمان پایان</label>
+            <input type="datetime-local" name="EndTime" value="@(Model.EndTime?.ToString("yyyy-MM-ddTHH:mm"))" required />
+        </div>
+
+        <h2>سوالات</h2>
+        <input type="hidden" id="questionCounter" value="@Model.Questions.Count" />
+        <div id="questionsContainer">
+            @for (int i=0;i<Model.Questions.Count;i++)
+            {
+                var q=Model.Questions[i];
+                var display=q.QuestionType=="MultipleChoice" ? "block" : "none";
+                var disabled=q.QuestionType=="MultipleChoice" ? "" : "disabled";
+                <div class="question-block">
+                    <div class="question-header">
+                        <h3>سوال @(i+1)</h3>
+                        <button type="button" class="btn btn-danger" onclick="removeQuestion(this)">حذف</button>
+                    </div>
+
+                    <div class="form-group">
+                        <label>متن سوال</label>
+                        <textarea name="Questions[@i].QuestionText" required>@q.QuestionText</textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>نوع سوال</label>
+                        <select name="Questions[@i].QuestionType" required onchange="onTypeChange(this)">
+                            <option value="MultipleChoice" selected="@(q.QuestionType=="MultipleChoice")">چند گزینه‌ای</option>
+                            <option value="TrueFalse" selected="@(q.QuestionType=="TrueFalse")">صحیح / غلط</option>
+                            <option value="Descriptive" selected="@(q.QuestionType=="Descriptive")">تشریحی</option>
+                            <option value="FillInTheBlank" selected="@(q.QuestionType=="FillInTheBlank")">جای خالی</option>
+                        </select>
+                    </div>
+
+                    <div class="options-section" style="display:@display;">
+                        <label>گزینه‌ها</label>
+                        @for (int j=0;j<4;j++)
+                        {
+                            var opt=j<q.Options.Count ? q.Options[j] : new OptionCreateViewModel();
+                            <div class="option-row">
+                                <input type="text" name="Questions[@i].Options[@j].OptionText" value="@opt.OptionText" placeholder="گزینه @(j+1)" @disabled />
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="Questions[@i].Options[@j].IsCorrect" value="true" checked="@opt.IsCorrect" @disabled />
+                                    <input type="hidden" name="Questions[@i].Options[@j].IsCorrect" value="false" @disabled />
+                                    صحیح
+                                </label>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="actions">
+            <button type="button" class="btn" onclick="addQuestion()">افزودن سوال</button>
+            <button type="submit" class="btn">ذخیره امتحان</button>
+        </div>
+    </form>
+
+    <div class="actions">
+        <a href="/Professor/Exams" class="btn">بازگشت</a>
+    </div>
+</div>
+
+<script>
+    function onTypeChange(select) {
+        var block = select.closest('.question-block');
+        var optionsSection = block.querySelector('.options-section');
+        var inputs = optionsSection.querySelectorAll('input');
+
+        if (select.value === 'MultipleChoice') {
+            optionsSection.style.display = 'block';
+            inputs.forEach(function(i) { i.disabled = false; });
+        } else {
+            optionsSection.style.display = 'none';
+            inputs.forEach(function(i) { i.disabled = true; });
+        }
+    }
+
+    function addQuestion() {
+        var counter = parseInt(document.getElementById('questionCounter').value);
+        document.getElementById('questionCounter').value = counter + 1;
+
+        var container = document.getElementById('questionsContainer');
+        var html = buildQuestionHtml(counter);
+        container.insertAdjacentHTML('beforeend', html);
+    }
+
+    function removeQuestion(btn) {
+        var blocks = document.querySelectorAll('.question-block');
+        if (blocks.length <= 1) {
+            alert('حداقل یک سوال باید وجود داشته باشد.');
+            return;
+        }
+        btn.closest('.question-block').remove();
+    }
+
+    function buildQuestionHtml(i) {
+        var optionsHtml = '';
+        for (var j = 0; j < 4; j++) {
+            optionsHtml += '<div class="option-row">' +
+                '<input type="text" name="Questions[' + i + '].Options[' + j + '].OptionText" placeholder="گزینه ' + (j+1) + '" />' +
+                '<label class="checkbox-label">' +
+                '<input type="checkbox" name="Questions[' + i + '].Options[' + j + '].IsCorrect" value="true" />' +
+                '<input type="hidden" name="Questions[' + i + '].Options[' + j + '].IsCorrect" value="false" />' +
+                'صحیح' +
+                '</label>' +
+                '</div>';
+        }
+
+        return '<div class="question-block">' +
+            '<div class="question-header">' +
+            '<h3>سوال ' + (i+1) + '</h3>' +
+            '<button type="button" class="btn btn-danger" onclick="removeQuestion(this)">حذف</button>' +
+            '</div>' +
+            '<div class="form-group">' +
+            '<label>متن سوال</label>' +
+            '<textarea name="Questions[' + i + '].QuestionText" required></textarea>' +
+            '</div>' +
+            '<div class="form-group">' +
+            '<label>نوع سوال</label>' +
+            '<select name="Questions[' + i + '].QuestionType" required onchange="onTypeChange(this)">' +
+            '<option value="MultipleChoice">چند گزینه‌ای</option>' +
+            '<option value="TrueFalse">صحیح / غلط</option>' +
+            '<option value="Descriptive">تشریحی</option>' +
+            '<option value="FillInTheBlank">جای خالی</option>' +
+            '</select>' +
+            '</div>' +
+            '<div class="options-section" style="display:block;">' +
+            '<label>گزینه‌ها</label>' +
+            optionsHtml +
+            '</div>' +
+            '</div>';
+    }
+</script>

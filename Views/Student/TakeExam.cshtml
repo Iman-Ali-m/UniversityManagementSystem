@@ -1,0 +1,60 @@
+@model TakeExamViewModel
+@{
+    ViewData["Title"]="شرکت در امتحان";
+}
+
+<div class="card">
+    <h1>@Model.ExamName</h1>
+    <p><strong>درس:</strong> @Model.CourseName</p>
+    @if (Model.EndTime!=null)
+    {
+        <p><strong>پایان امتحان:</strong> @Model.EndTime.Value.ToString("yyyy/MM/dd HH:mm")</p>
+    }
+
+    <form method="post" action="/Student/TakeExam">
+        <input type="hidden" name="examId" value="@Model.ExamID" />
+
+        @foreach (var q in Model.Questions)
+        {
+            <div class="question-block">
+                <div class="question-header">
+                    <h3>@q.QuestionText</h3>
+                </div>
+
+                @if (q.QuestionType=="MultipleChoice")
+                {
+                    foreach (var opt in q.Options)
+                    {
+                        <label class="radio-row">
+                            <input type="radio" name="answer[@q.QuestionID]" value="@opt.OptionID" required />
+                            <span>@opt.OptionText</span>
+                        </label>
+                    }
+                }
+                else if (q.QuestionType=="TrueFalse")
+                {
+                    <div class="form-group">
+                        <label>پاسخ</label>
+                        <select name="answer[@q.QuestionID]" required>
+                            <option value="">-- انتخاب --</option>
+                            <option value="true">صحیح</option>
+                            <option value="false">غلط</option>
+                        </select>
+                    </div>
+                }
+                else
+                {
+                    <div class="form-group">
+                        <label>پاسخ</label>
+                        <textarea name="answer[@q.QuestionID]" required></textarea>
+                    </div>
+                }
+            </div>
+        }
+
+        <div class="actions">
+            <button type="submit" class="btn">ارسال پاسخ‌ها</button>
+            <a href="/Student/Exams" class="btn">بازگشت</a>
+        </div>
+    </form>
+</div>

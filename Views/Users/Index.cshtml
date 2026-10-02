@@ -1,0 +1,72 @@
+@model List<UserListItemViewModel>
+@{
+    ViewData["Title"]="مدیریت کاربران";
+    bool canManage=ViewBag.CanManagePermissions as bool? ?? false;
+}
+
+<div class="card">
+    <h1>مدیریت کاربران</h1>
+
+    @if (TempData["Error"]!=null)
+    {
+        <div class="alert alert-error">@TempData["Error"]</div>
+    }
+
+    @if (TempData["Success"]!=null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    <div class="actions">
+        <a href="/Users/Create" class="btn">افزودن کاربر جدید</a>
+        <a href="/Staff/Index" class="btn">بازگشت به داشبورد</a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert">هیچ کاربری ثبت نشده است.</div>
+    }
+    else
+    {
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>نام کاربری</th>
+                        <th>نام کامل</th>
+                        <th>ایمیل</th>
+                        <th>نقش</th>
+                        <th>اختیارات</th>
+                        <th>عملیات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in Model)
+                    {
+                        <tr>
+                            <td>@user.Username</td>
+                            <td>@user.FullName</td>
+                            <td>@user.Email</td>
+                            <td>
+                                @(user.UserType=="Staff" ? "پرسنل" : user.UserType=="Professor" ? "استاد" : "دانشجو")
+                                @if (user.IsSuperAdmin)
+                                {
+                                    <span class="badge badge-success">SuperAdmin</span>
+                                }
+                            </td>
+                            <td>@user.PermissionCount</td>
+                            <td>
+                                <a href="/Users/Permissions/@user.UserID" class="btn">
+                                    @(canManage ? "ویرایش اختیارات" : "مشاهده اختیارات")
+                                </a>
+                                <form method="post" action="/Users/Delete/@user.UserID" onsubmit="return confirm('حذف این کاربر مطمئن هستید؟');" style="display:inline;">
+                                    <button type="submit" class="btn btn-danger">حذف</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

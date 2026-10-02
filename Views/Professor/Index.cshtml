@@ -1,0 +1,73 @@
+@{
+    ViewData["Title"]="آموزشیار";
+    var hasExamsView=Context.HasPermission("Exams.View");
+    var hasExamsGrade=Context.HasPermission("Exams.Grade");
+    var hasAssignmentsView=Context.HasPermission("Assignments.View");
+    var hasGradesEdit=Context.HasPermission("Grades.Edit");
+    var hasGradesAll=Context.HasPermission("Grades.ViewAll");
+    var hasAny=hasExamsView || hasExamsGrade || hasAssignmentsView || hasGradesEdit || hasGradesAll;
+}
+
+<div class="card">
+
+    @if (!hasAny)
+    {
+        <div class="empty-state">
+            <div class="icon-circle icon-warning">!</div>
+            <p>شما در حال حاضر به هیچ بخشی دسترسی ندارید. لطفاً با مدیر سیستم تماس بگیرید.</p>
+        </div>
+    }
+
+    else
+    {
+        <div class="grid">
+            @if (hasExamsView)
+            {
+                <a href="/Professor/Exams" class="dash-card">
+                    <h2>امتحان‌ها</h2>
+                    <p>ساخت و مدیریت امتحان‌ها</p>
+                </a>
+            }
+
+            @if (hasExamsGrade)
+            {
+                <a href="/Professor/ExamAnswers" class="dash-card">
+                    <h2>تصحیح امتحان</h2>
+                    <p>مشاهده پاسخ‌ها و ثبت نمره</p>
+                </a>
+            }
+
+            @if (Context.HasPermission("Exams.GradeBulk"))
+            {
+                <a href="/Professor/ExamAnswersBulk" class="dash-card">
+                    <h2>تصحیح گروهی</h2>
+                    <p>تصحیح یک‌باره نمرات همه دانشجویان در یک جدول</p>
+                </a>
+            }
+
+            @if (hasAssignmentsView)
+            {
+                <a href="/Professor/Assignments" class="dash-card">
+                    <h2>تمرین‌های دانشجویان</h2>
+                    <p>مشاهده، دانلود و نمره‌دهی</p>
+                </a>
+            }
+
+            @if (hasGradesEdit)
+            {
+                <a href="/Professor/Grades" class="dash-card">
+                    <h2>ویرایش نمرات</h2>
+                    <p>ثبت و اصلاح نمرات نهایی</p>
+                </a>
+            }
+
+            @if (hasGradesAll)
+            {
+                <a href="/Reports/AllGrades" class="dash-card">
+                    <h2>گزارش کلی نمرات</h2>
+                    <p>مشاهده نمرات همه دروس خودتان</p>
+                </a>
+            }
+        </div>
+    }
+</div>

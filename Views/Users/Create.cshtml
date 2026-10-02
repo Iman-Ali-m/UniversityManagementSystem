@@ -1,0 +1,50 @@
+@model UserCreateViewModel
+@{
+    ViewData["Title"]="افزودن کاربر";
+}
+
+<div class="card auth-card">
+    <h1>افزودن کاربر جدید</h1>
+
+    @if (ViewBag.Error!=null)
+    {
+        <div class="alert alert-error">@ViewBag.Error</div>
+    }
+
+    <form method="post" action="/Users/Create">
+        <div class="form-group">
+            <label>نام کاربری</label>
+            <input type="text" name="Username" value="@Model.Username" required />
+        </div>
+
+        <div class="form-group">
+            <label>رمز عبور</label>
+            <input type="password" name="Password" required />
+        </div>
+
+        <div class="form-group">
+            <label>نام کامل</label>
+            <input type="text" name="FullName" value="@Model.FullName" required />
+        </div>
+
+        <div class="form-group">
+            <label>ایمیل</label>
+            <input type="email" name="Email" value="@Model.Email" required />
+        </div>
+
+        <div class="form-group">
+            <label>نقش</label>
+            <select name="Role" required>
+                <option value="Student" selected="@(Model.Role=="Student")">دانشجو</option>
+                <option value="Professor" selected="@(Model.Role=="Professor")">استاد</option>
+                <option value="Staff" selected="@(Model.Role=="Staff")">پرسنل گروه آموزشی</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-block">ذخیره</button>
+    </form>
+
+    <div class="actions">
+        <a href="/Users" class="btn">بازگشت</a>
+    </div>
+</div>

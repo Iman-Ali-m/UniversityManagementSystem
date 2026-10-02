@@ -1,0 +1,63 @@
+@model List<CourseListItemViewModel>
+@{
+    ViewData["Title"]="مدیریت دروس";
+}
+
+<div class="card">
+    <h1>مدیریت دروس</h1>
+
+    @if (TempData["Error"]!=null)
+    {
+        <div class="alert alert-error">@TempData["Error"]</div>
+    }
+
+    @if (TempData["Success"]!=null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    <div class="actions">
+        <a href="/Courses/Create" class="btn">افزودن درس جدید</a>
+        <a href="/Staff/Index" class="btn">بازگشت</a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert">هیچ درسی ثبت نشده است.</div>
+    }
+    else
+    {
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>کد درس</th>
+                        <th>نام درس</th>
+                        <th>استاد</th>
+                        <th>سال تحصیلی</th>
+                        <th>دانشجو</th>
+                        <th>عملیات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var course in Model)
+                    {
+                        <tr>
+                            <td>@course.CourseCode</td>
+                            <td>@course.CourseName</td>
+                            <td>@(string.IsNullOrEmpty(course.ProfessorName) ? "بدون استاد" : course.ProfessorName)</td>
+                            <td>@(string.IsNullOrEmpty(course.AcademicYear) ? "-" : course.AcademicYear)</td>
+                            <td>@course.StudentCount</td>
+                            <td>
+                                <a href="/Courses/Details/@course.CourseID" class="btn">جزئیات</a>
+                                <form method="post" action="/Courses/Delete/@course.CourseID" onsubmit="return confirm('حذف این درس مطمئن هستید؟');" style="display:inline;">
+                                    <button type="submit" class="btn btn-danger">حذف</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

@@ -1,0 +1,69 @@
+@model List<StudentExamViewModel>
+@{
+    ViewData["Title"]="امتحانات";
+}
+
+<div class="card">
+    <h1>امتحانات</h1>
+
+    <div class="actions">
+        <a href="/Student/Index" class="btn">بازگشت</a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert">هیچ امتحان فعالی وجود ندارد.</div>
+    }
+    else
+    {
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>درس</th>
+                        <th>نام امتحان</th>
+                        <th>شروع</th>
+                        <th>پایان</th>
+                        <th>وضعیت</th>
+                        <th>عملیات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var exam in Model)
+                    {
+                        <tr>
+                            <td>@exam.CourseName</td>
+                            <td>@exam.ExamName</td>
+                            <td>@(exam.StartTime?.ToString("yyyy/MM/dd HH:mm") ?? "-")</td>
+                            <td>@(exam.EndTime?.ToString("yyyy/MM/dd HH:mm") ?? "-")</td>
+                            <td>
+                                @if (exam.HasTaken)
+                                {
+                                    <span class="badge badge-success">شرکت کرده‌اید</span>
+                                }
+                                else if (exam.IsOpen)
+                                {
+                                    <span class="badge badge-open">باز</span>
+                                }
+                                else
+                                {
+                                    <span class="badge">هنوز باز نشده</span>
+                                }
+                            </td>
+                            <td>
+                                @if (!exam.HasTaken && exam.IsOpen)
+                                {
+                                    <a href="/Student/TakeExam/@exam.ExamID" class="btn">شرکت در امتحان</a>
+                                }
+                                else
+                                {
+                                    <span>-</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

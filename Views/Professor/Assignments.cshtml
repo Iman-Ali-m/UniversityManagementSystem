@@ -1,0 +1,61 @@
+@model List<AssignmentListItemViewModel>
+@{
+    ViewData["Title"]="تمرین‌های دانشجویان";
+}
+
+<div class="card">
+    <h1>تمرین‌های دانشجویان</h1>
+
+    @if (TempData["Error"]!=null)
+    {
+        <div class="alert alert-error">@TempData["Error"]</div>
+    }
+
+    @if (TempData["Success"]!=null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    <div class="actions">
+        <a href="/Professor/Index" class="btn">بازگشت</a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert">هیچ تمرینی توسط دانشجویان شما ارسال نشده است.</div>
+    }
+    else
+    {
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>درس</th>
+                        <th>دانشجو</th>
+                        <th>نام تمرین</th>
+                        <th>فایل</th>
+                        <th>نمره</th>
+                        <th>عملیات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.CourseName</td>
+                            <td>@item.StudentName</td>
+                            <td>@item.AssignmentName</td>
+                            <td>
+                                <a href="/Professor/DownloadSubmission/@item.SubmissionID" class="btn">دانلود</a>
+                            </td>
+                            <td>@(item.Grade?.ToString("0.##") ?? "بدون نمره")</td>
+                            <td>
+                                <a href="/Professor/GradeAssignment/@item.SubmissionID" class="btn">نمره‌دهی</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

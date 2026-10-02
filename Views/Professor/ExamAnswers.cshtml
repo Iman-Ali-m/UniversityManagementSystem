@@ -1,0 +1,144 @@
+@{
+    ViewData["Title"]="تصحیح امتحان";
+    var courses=ViewBag.Courses as List<ExamAnswersCourseViewModel> ?? new();
+    var exams=ViewBag.Exams as List<ExamAnswersExamViewModel> ?? new();
+    var students=ViewBag.Students as List<ExamAnswersStudentViewModel> ?? new();
+    var answers=ViewBag.Answers as List<StudentAnswerItemViewModel> ?? new();
+    int? selectedCourseId=ViewBag.SelectedCourseId as int?;
+    int? selectedExamId=ViewBag.SelectedExamId as int?;
+    int? selectedStudentId=ViewBag.SelectedStudentId as int?;
+}
+
+<div class="card">
+    <h1>تصحیح امتحان</h1>
+
+    @if (TempData["Error"]!=null)
+    {
+        <div class="alert alert-error">@TempData["Error"]</div>
+    }
+
+    @if (TempData["Success"]!=null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    <form method="get" action="/Professor/ExamAnswers">
+        <div class="form-group">
+            <label>درس</label>
+            <select name="courseId" onchange="this.form.submit()">
+                <option value="">-- انتخاب درس --</option>
+                @foreach (var c in courses)
+                {
+                    <option value="@c.CourseID" selected="@(selectedCourseId==c.CourseID)">@c.CourseName</option>
+                }
+            </select>
+        </div>
+    </form>
+
+    @if (selectedExamId!=null && Context.HasPermission("Exams.GradeBulk"))
+    {
+        <div class="actions">
+            <a href="/Professor/ExamAnswersBulk?courseId=@selectedCourseId&examId=@selectedExamId" class="btn">رفتن به تصحیح گروهی این امتحان</a>
+        </div>
+    }
+
+    @if (selectedCourseId!=null && exams.Count>0)
+    {
+        <form method="get" action="/Professor/ExamAnswers">
+            <input type="hidden" name="courseId" value="@selectedCourseId" />
+            <div class="form-group">
+                <label>امتحان</label>
+                <select name="examId" onchange="this.form.submit()">
+                    <option value="">-- انتخاب امتحان --</option>
+                    @foreach (var e in exams)
+                    {
+                        <option value="@e.ExamID" selected="@(selectedExamId==e.ExamID)">@e.ExamName</option>
+                    }
+                </select>
+            </div>
+        </form>
+    }
+
+    @if (selectedExamId!=null && students.Count>0)
+    {
+        <form method="get" action="/Professor/ExamAnswers">
+            <input type="hidden" name="courseId" value="@selectedCourseId" />
+            <input type="hidden" name="examId" value="@selectedExamId" />
+            <div class="form-group">
+                <label>دانشجو</label>
+                <select name="studentId" onchange="this.form.submit()">
+                    <option value="">-- انتخاب دانشجو --</option>
+                    @foreach (var s in students)
+                    {
+                        <option value="@s.UserID" selected="@(selectedStudentId==s.UserID)">
+                            @s.FullName @(s.HasAnswered ? "" : "(بدون پاسخ)")
+                        </option>
+                    }
+                </select>
+            </div>
+        </form>
+    }
+
+    @if (selectedStudentId!=null)
+    {
+        if (answers.Count==0)
+        {
+            <div class="alert">این دانشجو هنوز به این امتحان پاسخ نداده است.</div>
+        }
+        else
+        {
+            <form method="post" action="/Professor/GradeExam">
+                <input type="hidden" name="examId" value="@selectedExamId" />
+                <input type="hidden" name="studentId" value="@selectedStudentId" />
+
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>سوال</th>
+                                <th>نوع</th>
+                                <th>پاسخ دانشجو</th>
+                                <th>نمره</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var a in answers)
+                            {
+                                <tr>
+                                    <td>@a.QuestionText</td>
+                                    <td>@TranslateType(a.QuestionType)</td>
+                                    <td>@(string.IsNullOrEmpty(a.AnswerText) ? "-" : a.AnswerText)</td>
+                                    <td>
+                                        <input type="number" step="0.01" min="0" class="grade-input"
+                                               name="grades[@a.AnswerID]"
+                                               value="@(a.Grade?.ToString() ?? "0")" />
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="actions">
+                    <button type="submit" class="btn">ذخیره نمرات</button>
+                    <a href="/Professor/ExamAnswers?courseId=@selectedCourseId&examId=@selectedExamId" class="btn">بازگشت</a>
+                </div>
+            </form>
+        }
+    }
+
+    <div class="actions">
+        <a href="/Professor/Index" class="btn">بازگشت</a>
+    </div>
+</div>
+
+@functions {
+    string TranslateType(string type) => type switch
+    {
+        "MultipleChoice" => "چند گزینه‌ای",
+        "TrueFalse" => "صحیح / غلط",
+        "Descriptive" => "تشریحی",
+        "FillInTheBlank" => "جای خالی",
+        _ => type
+    };
+}

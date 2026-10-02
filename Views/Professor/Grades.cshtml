@@ -1,0 +1,51 @@
+@model List<EditGradesCourseViewModel>
+@{
+    ViewData["Title"]="ویرایش نمرات";
+}
+
+<div class="card">
+    <h1>ویرایش نمرات</h1>
+
+    @if (TempData["Error"]!=null)
+    {
+        <div class="alert alert-error">@TempData["Error"]</div>
+    }
+
+    @if (TempData["Success"]!=null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    <div class="actions">
+        <a href="/Professor/Index" class="btn">بازگشت</a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert">شما هیچ درسی ندارید.</div>
+    }
+    else
+    {
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>نام درس</th>
+                        <th>عملیات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var course in Model)
+                    {
+                        <tr>
+                            <td>@course.CourseName</td>
+                            <td>
+                                <a href="/Professor/EditGrades/@course.CourseID" class="btn">ویرایش نمرات</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

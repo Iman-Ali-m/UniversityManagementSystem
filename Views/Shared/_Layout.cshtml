@@ -1,0 +1,56 @@
+﻿<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+    
+<head>
+
+
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - سیستم آموزشیار</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+
+
+
+<body>
+
+
+
+
+    <header class="site-header">
+        <div class="header-inner">
+            <a href="/" class="brand">سیستم آموزشیار</a>
+            <nav class="main-nav">
+                @if (Context.Session.GetInt32("UserId")!=null)
+                {
+                    <span class="user-badge">@Context.Session.GetString("Email")</span>
+                    <span class="user-badge">@Context.Session.GetString("FullName")</span>
+                    <a href="/Account/Logout" class="nav-link">خروج</a>
+                }
+            </nav>
+        </div>
+    </header>
+
+
+
+
+    <main class="site-main">
+        <div class="container">
+            @RenderBody()
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <p>راه ارتباطی با پشتیبانی: https://eitaa.com/Pyton_lerning</p>
+    </footer>
+
+
+</body>
+
+
+
+
+
+</html>

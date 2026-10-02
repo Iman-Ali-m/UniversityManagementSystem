@@ -1,0 +1,76 @@
+@model UserPermissionsViewModel
+@{
+    ViewData["Title"]="اختیارات کاربر";
+}
+
+<div class="card">
+    <h1>اختیارات کاربر</h1>
+
+    @if (TempData["Error"]!=null)
+    {
+        <div class="alert alert-error">@TempData["Error"]</div>
+    }
+
+    @if (TempData["Success"]!=null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    <div class="info-block">
+        <p><strong>نام کاربری:</strong> @Model.Username</p>
+        <p><strong>نام کامل:</strong> @Model.FullName</p>
+        <p>
+            <strong>نقش:</strong>
+            @(Model.UserType=="Staff" ? "پرسنل" : Model.UserType=="Professor" ? "استاد" : "دانشجو")
+            @if (Model.IsSuperAdmin)
+            {
+                <span class="badge badge-success">SuperAdmin</span>
+            }
+        </p>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.InfoMessage))
+    {
+        <div class="alert">@Model.InfoMessage</div>
+    }
+
+    @if (Model.Categories.Count==0)
+    {
+        <div class="alert">هیچ اختیاری در سیستم تعریف نشده است.</div>
+    }
+    else
+    {
+        <form method="post" action="/Users/Permissions/@Model.UserID">
+            @foreach (var category in Model.Categories)
+            {
+                <div class="permission-category">
+                    <h2>@category.CategoryLabel</h2>
+                    <div class="permission-grid">
+                        @foreach (var p in category.Permissions)
+                        {
+                            <label class="permission-item">
+                                <input type="checkbox"
+                                       name="permissionIds"
+                                       value="@p.PermissionID"
+                                       checked="@p.IsSelected"
+                                       disabled="@(!Model.CanEdit)" />
+                                <span class="permission-text">
+                                    <strong>@p.Description</strong>
+                                    <small>@p.Code</small>
+                                </span>
+                            </label>
+                        }
+                    </div>
+                </div>
+            }
+
+            <div class="actions">
+                @if (Model.CanEdit)
+                {
+                    <button type="submit" class="btn">ذخیره اختیارات</button>
+                }
+                <a href="/Users" class="btn">بازگشت به لیست کاربران</a>
+            </div>
+        </form>
+    }
+</div>

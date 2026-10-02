@@ -1,0 +1,58 @@
+@model List<MyAssignmentViewModel>
+@{
+    ViewData["Title"]="تمرین‌های من";
+}
+
+<div class="card">
+    <h1>تمرین‌های ارسال‌شده</h1>
+
+    @if (TempData["Error"]!=null)
+    {
+        <div class="alert alert-error">@TempData["Error"]</div>
+    }
+
+    @if (TempData["Success"]!=null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    <div class="actions">
+        <a href="/Student/SubmitAssignment" class="btn">ارسال تمرین جدید</a>
+        <a href="/Student/Index" class="btn">بازگشت</a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert">هنوز تمرینی ارسال نکرده‌اید.</div>
+    }
+    else
+    {
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>درس</th>
+                        <th>نام تمرین</th>
+                        <th>فایل</th>
+                        <th>نمره</th>
+                        <th>عملیات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.CourseName</td>
+                            <td>@item.AssignmentName</td>
+                            <td>@item.SubmissionFileName</td>
+                            <td>@(item.Grade?.ToString("0.##") ?? "بدون نمره")</td>
+                            <td>
+                                <a href="/Student/DownloadMySubmission/@item.SubmissionID" class="btn">دانلود</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

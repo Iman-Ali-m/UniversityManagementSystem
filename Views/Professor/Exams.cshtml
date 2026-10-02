@@ -1,0 +1,65 @@
+@model List<ExamListItemViewModel>
+@{
+    ViewData["Title"]="امتحان‌ها";
+}
+
+<div class="card">
+    <h1>امتحان‌های من</h1>
+
+    @if (TempData["Error"]!=null)
+    {
+        <div class="alert alert-error">@TempData["Error"]</div>
+    }
+
+    @if (TempData["Success"]!=null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    <div class="actions">
+        <a href="/Professor/CreateExam" class="btn">ساخت امتحان جدید</a>
+        <a href="/Professor/Index" class="btn">بازگشت</a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert">هیچ امتحانی ثبت نشده است.</div>
+    }
+    else
+    {
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>نام امتحان</th>
+                        <th>درس</th>
+                        <th>حداکثر نمره</th>
+                        <th>تعداد سوال</th>
+                        <th>شروع</th>
+                        <th>پایان</th>
+                        <th>عملیات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var exam in Model)
+                    {
+                        <tr>
+                            <td>@exam.ExamName</td>
+                            <td>@exam.CourseName</td>
+                            <td>@(exam.MaxScore?.ToString("0.##") ?? "20")</td>
+                            <td>@exam.QuestionCount</td>
+                            <td>@(exam.StartTime?.ToString("yyyy/MM/dd HH:mm") ?? "-")</td>
+                            <td>@(exam.EndTime?.ToString("yyyy/MM/dd HH:mm") ?? "-")</td>
+                            <td>
+                                <a href="/Professor/EditExam/@exam.ExamID" style="padding: 5.9px 15px;" class="btn">ویرایش</a>
+                                <form method="post" action="/Professor/DeleteExam/@exam.ExamID" onsubmit="return confirm('حذف این امتحان مطمئن هستید؟');" style="display:inline;">
+                                    <button type="submit" class="btn btn-danger">حذف</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

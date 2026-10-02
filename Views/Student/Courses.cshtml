@@ -1,0 +1,39 @@
+@model List<StudentCourseViewModel>
+@{
+    ViewData["Title"]="دروس من";
+}
+
+<div class="card">
+    <h1>دروس ثبت‌نام‌شده</h1>
+
+    <div class="actions">
+        <a href="/Student/Index" class="btn">بازگشت</a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert">هنوز در هیچ درسی ثبت‌نام نشده‌اید.</div>
+    }
+    else
+    {
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>نام درس</th>
+                        <th>استاد</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var course in Model)
+                    {
+                        <tr>
+                            <td>@course.CourseName</td>
+                            <td>@(string.IsNullOrEmpty(course.ProfessorName) ? "بدون استاد" : course.ProfessorName)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

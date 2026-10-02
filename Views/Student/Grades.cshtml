@@ -1,0 +1,43 @@
+@model List<StudentGradeViewModel>
+@{
+    ViewData["Title"]="نمرات من";
+}
+
+<div class="card">
+    <h1>نمرات من</h1>
+
+    <div class="actions">
+        <a href="/Student/Index" class="btn">بازگشت</a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert">هنوز نمره‌ای برای شما ثبت نشده است.</div>
+    }
+    else
+    {
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>نام درس</th>
+                        <th>نمره تمرین</th>
+                        <th>نمره امتحان</th>
+                        <th>نمره کل</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var g in Model)
+                    {
+                        <tr>
+                            <td>@g.CourseName</td>
+                            <td>@(g.ExamGrade?.ToString("0.##") ?? "-")</td>
+                            <td>@(g.AssignmentGrade?.ToString("0.##") ?? "-")</td>
+                            <td>@(g.TotalGrade?.ToString("0.##") ?? "-")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

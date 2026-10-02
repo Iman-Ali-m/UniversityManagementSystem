@@ -1,0 +1,53 @@
+@model RegisterViewModel
+@{
+    ViewData["Title"]="ثبت‌نام";
+}
+
+<div class="card auth-card">
+    <h1>ثبت‌نام</h1>
+
+    @if (ViewBag.Error!=null)
+    {
+        <div class="alert alert-error">@ViewBag.Error</div>
+    }
+
+    <form method="post" action="/Account/Register">
+        <input type="hidden" name="Role" value="@Model.Role" />
+
+        <div class="form-group">
+            <label>نقش</label>
+            <input type="text" value="@(Model.Role=="Staff" ? "پرسنل گروه آموزشی" : Model.Role=="Professor" ? "استاد" : "دانشجو")" disabled />
+        </div>
+
+        <div class="form-group">
+            <label>نام کامل</label>
+            <input type="text" name="FullName" value="@Model.FullName" required />
+        </div>
+
+        <div class="form-group">
+            <label>نام کاربری</label>
+            <input type="text" name="Username" value="@Model.Username" required />
+        </div>
+
+        <div class="form-group">
+            <label>رمز عبور</label>
+            <input type="password" name="Password" required />
+        </div>
+
+        <div class="form-group">
+            <label>ایمیل</label>
+            <input type="email" name="Email" value="@Model.Email" required />
+        </div>
+
+        <div class="form-group">
+            <label>کد ثابت</label>
+            <input type="text" name="FixedCode" required />
+        </div>
+
+        <button type="submit" class="btn btn-block">ثبت‌نام</button>
+    </form>
+
+    <div class="actions">
+        <a href="/Account/Login" class="btn">بازگشت</a>
+    </div>
+</div>

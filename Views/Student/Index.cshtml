@@ -1,0 +1,64 @@
+@{
+    ViewData["Title"]="آموزشیار";
+    var hasCourses=Context.HasPermission("Student.Courses.View");
+    var hasExams=Context.HasPermission("Student.Exams.View");
+    var hasSubmit=Context.HasPermission("Student.Assignments.Submit");
+    var hasMyAssignments=Context.HasPermission("Student.Assignments.View");
+    var hasGrades=Context.HasPermission("Student.Grades.View");
+    var hasAny=hasCourses || hasExams || hasSubmit || hasMyAssignments || hasGrades;
+}
+
+<div class="card">
+
+    @if (!hasAny)
+    {
+        <div class="empty-state">
+            <div class="icon-circle icon-warning">!</div>
+            <p>شما در حال حاضر به هیچ بخشی دسترسی ندارید. لطفاً با مدیر سیستم تماس بگیرید.</p>
+        </div>
+    }
+    else
+    {
+        <div class="grid">
+            @if (hasCourses)
+            {
+                <a href="/Student/Courses" class="dash-card">
+                    <h2>دروس من</h2>
+                    <p>مشاهده دروس ثبت‌نام‌شده</p>
+                </a>
+            }
+
+            @if (hasExams)
+            {
+                <a href="/Student/Exams" class="dash-card">
+                    <h2>امتحانات</h2>
+                    <p>شرکت در امتحان‌های فعال</p>
+                </a>
+            }
+
+            @if (hasSubmit)
+            {
+                <a href="/Student/SubmitAssignment" class="dash-card">
+                    <h2>ارسال تمرین</h2>
+                    <p>بارگذاری فایل تمرین</p>
+                </a>
+            }
+
+            @if (hasMyAssignments)
+            {
+                <a href="/Student/MyAssignments" class="dash-card">
+                    <h2>تمرین‌های من</h2>
+                    <p>مشاهده و دانلود تمرین‌های ارسالی</p>
+                </a>
+            }
+
+            @if (hasGrades)
+            {
+                <a href="/Student/Grades" class="dash-card">
+                    <h2>نمرات من</h2>
+                    <p>مشاهده کارنامه</p>
+                </a>
+            }
+        </div>
+    }
+</div>

@@ -1,0 +1,90 @@
+@model CourseCreateViewModel
+@{
+    ViewData["Title"]="افزودن درس";
+    var professors=(List<ProfessorOptionViewModel>)ViewBag.Professors;
+    var students=(List<StudentOptionViewModel>)ViewBag.Students;
+}
+
+<div class="card">
+    <h1>افزودن درس جدید</h1>
+
+    @if (ViewBag.Error!=null)
+    {
+        <div class="alert alert-error">@ViewBag.Error</div>
+    }
+
+    <form method="post" action="/Courses/Create">
+        <div class="form-row">
+            <div class="form-group">
+                <label>کد درس</label>
+                <input type="text" name="CourseCode" value="@Model.CourseCode" maxlength="30" required />
+            </div>
+            <div class="form-group">
+                <label>نام درس</label>
+                <input type="text" name="CourseName" value="@Model.CourseName" maxlength="100" required />
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>استاد</label>
+                <select name="ProfessorID" required>
+                    <option value="">-- انتخاب استاد --</option>
+                    @foreach (var p in professors)
+                    {
+                        <option value="@p.UserID" selected="@(Model.ProfessorID==p.UserID)">@p.FullName</option>
+                    }
+                </select>
+            </div>
+            <div class="form-group">
+                <label>سال تحصیلی</label>
+                <input type="text" name="AcademicYear" value="@Model.AcademicYear" placeholder="مثلاً 1404-1405" maxlength="20" />
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>ساعت کلاس</label>
+                <input type="text" name="ClassTime" value="@Model.ClassTime" placeholder="مثلاً شنبه ۱۰ تا ۱۲" maxlength="80" />
+            </div>
+            <div class="form-group">
+                <label>مکان کلاس</label>
+                <input type="text" name="ClassLocation" value="@Model.ClassLocation" placeholder="مثلاً کلاس ۲۰۱" maxlength="120" />
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>تاریخ شروع کلاس</label>
+                <input type="date" name="StartDate" value="@(Model.StartDate?.ToString("yyyy-MM-dd"))" />
+            </div>
+            <div class="form-group">
+                <label>تاریخ پایان کلاس</label>
+                <input type="date" name="EndDate" value="@(Model.EndDate?.ToString("yyyy-MM-dd"))" />
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>تاریخ امتحان نهایی</label>
+                <input type="date" name="FinalExamDate" value="@(Model.FinalExamDate?.ToString("yyyy-MM-dd"))" />
+            </div>
+            <div class="form-group"></div>
+        </div>
+
+        <div class="form-group">
+            <label>دانشجویان (با نگه‌داشتن Ctrl چند نفر را انتخاب کن)</label>
+            <select name="StudentIDs" multiple required style="min-height:200px;">
+                @foreach (var s in students)
+                {
+                    <option value="@s.UserID" selected="@(Model.StudentIDs.Contains(s.UserID))">@s.FullName</option>
+                }
+            </select>
+        </div>
+
+        <div class="actions">
+            <button type="submit" class="btn">ذخیره</button>
+            <a href="/Courses" class="btn">بازگشت</a>
+        </div>
+    </form>
+</div>

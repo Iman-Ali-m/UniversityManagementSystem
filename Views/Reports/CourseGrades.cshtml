@@ -1,0 +1,93 @@
+@model ReportsCourseGradesViewModel
+@{
+    ViewData["Title"]="نمرات درس";
+    var role=Context.Session.GetString("UserRole");
+    var isProfessor=role=="Professor";
+}
+
+<div class="card">
+    <h1>نمرات درس: @Model.CourseName</h1>
+
+    <div class="info-block">
+        <p><strong>کد درس:</strong> @Model.CourseCode</p>
+        <p><strong>نام درس:</strong> @Model.CourseName</p>
+        <p><strong>استاد:</strong> @(string.IsNullOrEmpty(Model.ProfessorName) ? "بدون استاد" : Model.ProfessorName)</p>
+        <p><strong>سال تحصیلی:</strong> @(string.IsNullOrEmpty(Model.AcademicYear) ? "-" : Model.AcademicYear)</p>
+    </div>
+
+    <div class="stats-row">
+        <div class="stat-card">
+            <span class="stat-label">تعداد دانشجو</span>
+            <span class="stat-value">@Model.Rows.Count</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">میانگین نمره امتحان</span>
+            <span class="stat-value">@(Model.AverageExamGrade?.ToString("0.##") ?? "-")</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">میانگین نمره تمرین</span>
+            <span class="stat-value">@(Model.AverageAssignmentGrade?.ToString("0.##") ?? "-")</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">میانگین نمره نهایی</span>
+            <span class="stat-value">@(Model.AverageFinalGrade?.ToString("0.##") ?? "-")</span>
+        </div>
+    </div>
+
+    @if (Model.Rows.Count==0)
+    {
+        <div class="alert">هیچ دانشجویی در این درس ثبت‌نام نشده است.</div>
+    }
+    else
+    {
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>نام دانشجو</th>
+                        <th>نام کاربری</th>
+                        <th>نمره تمرین</th>
+                        <th>نمره امتحان</th>
+                        <th>نمره نهایی</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int i=0;i<Model.Rows.Count;i++)
+                    {
+                        var r=Model.Rows[i];
+                        <tr>
+                            <td>@(i+1)</td>
+                            <td>@r.StudentName</td>
+                            <td>@r.StudentUsername</td>
+                            <td>@(r.AssignmentGrade?.ToString("0.##") ?? "-")</td>
+                            <td>@(r.ExamGrade?.ToString("0.##") ?? "-")</td>
+                            <td>
+                                @if (r.FinalGrade==null)
+                                {
+                                    <span>-</span>
+                                }
+                                else
+                                {
+                                    @r.FinalGrade.Value.ToString("0.##")
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+
+    <div class="actions">
+        <a href="/Reports/AllGrades" class="btn">بازگشت به لیست دروس</a>
+        @if (isProfessor)
+        {
+            <a href="/Professor/Index" class="btn">بازگشت به داشبورد</a>
+        }
+        else
+        {
+            <a href="/Staff/Index" class="btn">بازگشت به داشبورد</a>
+        }
+    </div>
+</div>

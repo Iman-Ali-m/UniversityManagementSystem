@@ -1,0 +1,160 @@
+@model BulkGradeViewModel
+@{
+    ViewData["Title"]="تصحیح گروهی امتحان";
+}
+
+<div class="card">
+    <h1>تصحیح گروهی امتحان</h1>
+
+    @if (TempData["Error"]!=null)
+    {
+        <div class="alert alert-error">@TempData["Error"]</div>
+    }
+
+    @if (TempData["Success"]!=null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    <p class="report-hint">در این صفحه همه دانشجویانی که به امتحان پاسخ داده‌اند در یک جدول نمایش داده می‌شوند. نمرات را وارد کنید و یک‌باره ذخیره کنید.</p>
+
+    <form method="get" action="/Professor/ExamAnswersBulk">
+        <div class="form-group">
+            <label>درس</label>
+            <select name="courseId" onchange="this.form.submit()">
+                <option value="">-- انتخاب درس --</option>
+                @foreach (var c in Model.Courses)
+                {
+                    <option value="@c.CourseID" selected="@(Model.CourseID==c.CourseID)">@c.CourseName</option>
+                }
+            </select>
+        </div>
+    </form>
+
+    @if (Model.CourseID>0 && Model.Exams.Count>0)
+    {
+        <form method="get" action="/Professor/ExamAnswersBulk">
+            <input type="hidden" name="courseId" value="@Model.CourseID" />
+            <div class="form-group">
+                <label>امتحان</label>
+                <select name="examId" onchange="this.form.submit()">
+                    <option value="">-- انتخاب امتحان --</option>
+                    @foreach (var e in Model.Exams)
+                    {
+                        <option value="@e.ExamID" selected="@(Model.ExamID==e.ExamID)">@e.ExamName</option>
+                    }
+                </select>
+            </div>
+        </form>
+    }
+
+    @if (Model.ExamID>0 && Model.Questions.Count>0)
+    {
+        if (Model.Students.Count==0)
+        {
+            <div class="alert">هیچ دانشجویی به این امتحان پاسخ نداده است.</div>
+        }
+        else
+        {
+            <form method="post" action="/Professor/ExamAnswersBulk" id="bulkForm">
+                <input type="hidden" name="examId" value="@Model.ExamID" />
+
+                <div class="table-wrap">
+                    <table class="bulk-grade-table">
+                        <thead>
+                            <tr>
+                                <th class="sticky-col">دانشجو</th>
+                                @for (int qi=0;qi<Model.Questions.Count;qi++)
+                                {
+                                    var q=Model.Questions[qi];
+                                    <th>
+                                        <div class="q-header">سوال @(qi+1)</div>
+                                        <div class="q-text">@q.QuestionText</div>
+                                        <div class="q-type">@q.QuestionTypeLabel</div>
+                                    </th>
+                                }
+                                <th class="row-total-col">جمع</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var student in Model.Students)
+                            {
+                                <tr data-student="@student.StudentID">
+                                    <td class="sticky-col">
+                                        <strong>@student.StudentName</strong>
+                                    </td>
+                                    @foreach (var q in Model.Questions)
+                                    {
+                                        if (student.Cells.ContainsKey(q.QuestionID))
+                                        {
+                                            var cell=student.Cells[q.QuestionID];
+                                            <td>
+                                                <div class="answer-preview">@(string.IsNullOrEmpty(cell.AnswerText) ? "-" : cell.AnswerText)</div>
+                                                <input type="number"
+                                                       step="0.01"
+                                                       min="0"
+                                                       name="values[@(student.StudentID)_@(cell.AnswerID)]"
+                                                       value="@(cell.Grade?.ToString() ?? "0")"
+                                                       class="bulk-input" />
+                                            </td>
+                                        }
+                                        else
+                                        {
+                                            <td>
+                                                <div class="answer-preview">-</div>
+                                                <span class="no-answer">بدون پاسخ</span>
+                                            </td>
+                                        }
+                                    }
+                                    <td class="row-total-col">
+                                        <span class="row-total">0</span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="actions">
+                    <button type="submit" class="btn">ذخیره همه نمرات</button>
+                    <a href="/Professor/ExamAnswers?courseId=@Model.CourseID&examId=@Model.ExamID" class="btn">تصحیح تکی</a>
+                    <a href="/Professor/Index" class="btn">بازگشت به داشبورد</a>
+                </div>
+            </form>
+        }
+    }
+
+    @if (Model.CourseID==0)
+    {
+        <div class="actions">
+            <a href="/Professor/Index" class="btn">بازگشت به داشبورد</a>
+        </div>
+    }
+</div>
+
+<script>
+    function recalcAllTotals() {
+        var rows = document.querySelectorAll('tr[data-student]');
+        rows.forEach(function(row) {
+            var sum = 0;
+            row.querySelectorAll('input.bulk-input').forEach(function(inp) {
+                var v = parseFloat(inp.value);
+                if (!isNaN(v) && v >= 0) {
+                    sum += v;
+                }
+            });
+            var totalEl = row.querySelector('.row-total');
+            if (totalEl) {
+                totalEl.textContent = sum.toFixed(2);
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('input.bulk-input').forEach(function(inp) {
+            inp.addEventListener('input', recalcAllTotals);
+            inp.addEventListener('focus', function() { this.select(); });
+        });
+        recalcAllTotals();
+    });
+</script>

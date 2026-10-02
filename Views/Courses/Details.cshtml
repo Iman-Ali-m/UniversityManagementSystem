@@ -1,0 +1,53 @@
+@model CourseDetailsViewModel
+@{
+    ViewData["Title"]="جزئیات درس";
+}
+
+<div class="card">
+    <h1>جزئیات درس: @Model.CourseName</h1>
+
+    <div class="info-block">
+        <p><strong>کد درس:</strong> @Model.CourseCode</p>
+        <p><strong>نام درس:</strong> @Model.CourseName</p>
+        <p><strong>استاد:</strong> @(string.IsNullOrEmpty(Model.ProfessorName) ? "بدون استاد" : Model.ProfessorName)</p>
+        <p><strong>سال تحصیلی:</strong> @(string.IsNullOrEmpty(Model.AcademicYear) ? "-" : Model.AcademicYear)</p>
+        <p><strong>ساعت کلاس:</strong> @(string.IsNullOrEmpty(Model.ClassTime) ? "-" : Model.ClassTime)</p>
+        <p><strong>مکان کلاس:</strong> @(string.IsNullOrEmpty(Model.ClassLocation) ? "-" : Model.ClassLocation)</p>
+        <p><strong>تاریخ شروع:</strong> @(Model.StartDate?.ToString("yyyy/MM/dd") ?? "-")</p>
+        <p><strong>تاریخ پایان:</strong> @(Model.EndDate?.ToString("yyyy/MM/dd") ?? "-")</p>
+        <p><strong>تاریخ امتحان نهایی:</strong> @(Model.FinalExamDate?.ToString("yyyy/MM/dd") ?? "-")</p>
+    </div>
+
+    <h2>دانشجویان ثبت‌نام‌شده</h2>
+
+    @if (Model.Students.Count==0)
+    {
+        <div class="alert">هیچ دانشجویی در این درس ثبت‌نام نشده است.</div>
+    }
+    else
+    {
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>نام دانشجو</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int i=0;i<Model.Students.Count;i++)
+                    {
+                        <tr>
+                            <td>@(i+1)</td>
+                            <td>@Model.Students[i]</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+
+    <div class="actions">
+        <a href="/Courses" class="btn">بازگشت به لیست دروس</a>
+    </div>
+</div>

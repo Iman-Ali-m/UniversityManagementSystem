@@ -1,0 +1,69 @@
+@model List<ReportsCourseViewModel>
+@{
+    ViewData["Title"]="گزارش کلی نمرات";
+    var role=Context.Session.GetString("UserRole");
+    var isProfessor=role=="Professor";
+}
+
+<div class="card">
+    <h1>گزارش کلی نمرات</h1>
+
+    <p class="report-hint">
+        @if (isProfessor)
+        {
+            <span>در این صفحه نمرات همه دانشجویان درس‌های خودتان را می‌بینید.</span>
+        }
+        else
+        {
+            <span>در این صفحه نمرات همه دانشجویان همه دروس را می‌بینید.</span>
+        }
+    </p>
+
+    <div class="actions">
+        @if (isProfessor)
+        {
+            <a href="/Professor/Index" class="btn">بازگشت</a>
+        }
+        else
+        {
+            <a href="/Staff/Index" class="btn">بازگشت</a>
+        }
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert">هیچ درسی برای نمایش وجود ندارد.</div>
+    }
+    else
+    {
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>کد درس</th>
+                        <th>نام درس</th>
+                        <th>استاد</th>
+                        <th>سال تحصیلی</th>
+                        <th>تعداد دانشجو</th>
+                        <th>عملیات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var course in Model)
+                    {
+                        <tr>
+                            <td>@course.CourseCode</td>
+                            <td>@course.CourseName</td>
+                            <td>@(string.IsNullOrEmpty(course.ProfessorName) ? "بدون استاد" : course.ProfessorName)</td>
+                            <td>@(string.IsNullOrEmpty(course.AcademicYear) ? "-" : course.AcademicYear)</td>
+                            <td>@course.StudentCount</td>
+                            <td>
+                                <a href="/Reports/CourseGrades/@course.CourseID" class="btn">مشاهده نمرات</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

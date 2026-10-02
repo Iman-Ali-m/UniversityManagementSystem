@@ -1,0 +1,47 @@
+@model LoginViewModel
+@{
+    ViewData["Title"]="ورود";
+}
+
+<div class="card auth-card">
+    <h1>ورود به سیستم</h1>
+
+    @if (ViewBag.Error!=null)
+    {
+        <div class="alert alert-error">@ViewBag.Error</div>
+    }
+
+    @if (TempData["Success"]!=null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    <form method="post" action="/Account/Login">
+        <div class="form-group">
+            <label>نقش</label>
+            <select name="Role" required>
+                <option value="Student" selected="@(Model.Role=="Student")">دانشجو</option>
+                <option value="Professor" selected="@(Model.Role=="Professor")">استاد</option>
+                <option value="Staff" selected="@(Model.Role=="Staff")">پرسنل گروه آموزشی</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>نام کاربری</label>
+            <input type="text" name="Username" value="@Model.Username" required />
+        </div>
+
+        <div class="form-group">
+            <label>رمز عبور</label>
+            <input type="password" name="Password" required />
+        </div>
+
+        <button type="submit" class="btn btn-block">ورود</button>
+    </form>
+
+    <div class="actions">
+        <a href="/Account/Register?role=Student" class="btn">ثبت‌نام دانشجو</a>
+        <a href="/Account/Register?role=Professor" class="btn">ثبت‌نام استاد</a>
+        <a href="/Account/Register?role=Staff" class="btn">ثبت‌نام پرسنل</a>
+    </div>
+</div>

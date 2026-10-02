@@ -1,0 +1,43 @@
+@model SubmitAssignmentViewModel
+@{
+    ViewData["Title"]="ارسال تمرین";
+}
+
+<div class="card auth-card">
+    <h1>ارسال تمرین</h1>
+
+    @if (ViewBag.Error!=null)
+    {
+        <div class="alert alert-error">@ViewBag.Error</div>
+    }
+
+    <form method="post" action="/Student/SubmitAssignment" enctype="multipart/form-data">
+        <div class="form-group">
+            <label>درس</label>
+            <select name="CourseID" required>
+                <option value="">-- انتخاب درس --</option>
+                @foreach (var c in Model.Courses)
+                {
+                    <option value="@c.CourseID" selected="@(Model.CourseID==c.CourseID)">@c.CourseName</option>
+                }
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>نام تمرین</label>
+            <input type="text" name="AssignmentName" value="@Model.AssignmentName" required />
+        </div>
+
+        <div class="form-group">
+            <label>فایل تمرین (حداکثر ۱۰ مگابایت)</label>
+            <input type="file" name="File" required />
+        </div>
+
+        <button type="submit" class="btn btn-block">ارسال</button>
+    </form>
+
+    <div class="actions">
+        <a href="/Student/Index" class="btn">بازگشت</a>
+        <a href="/Student/MyAssignments" class="btn">تمرین‌های من</a>
+    </div>
+</div>

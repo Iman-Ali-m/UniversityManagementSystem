@@ -1,0 +1,39 @@
+@model AssignmentGradeViewModel
+@{
+    ViewData["Title"]="نمره‌دهی تمرین";
+}
+
+<div class="card auth-card">
+    <h1>نمره‌دهی تمرین</h1>
+
+    @if (TempData["Error"]!=null)
+    {
+        <div class="alert alert-error">@TempData["Error"]</div>
+    }
+
+    <div class="info-block">
+        <p><strong>درس:</strong> @Model.CourseName</p>
+        <p><strong>دانشجو:</strong> @Model.StudentName</p>
+        <p><strong>نام تمرین:</strong> @Model.AssignmentName</p>
+        <p>
+            <strong>فایل:</strong>
+            <a href="/Professor/DownloadSubmission/@Model.SubmissionID" class="btn">دانلود فایل</a>
+        </p>
+    </div>
+
+    <form method="post" action="/Professor/GradeAssignment/@Model.SubmissionID">
+        <div class="form-group">
+            <label>نمره</label>
+            <input type="number" step="0.01" min="0"
+                   name="grade"
+                   value="@(Model.Grade?.ToString() ?? "")"
+                   required />
+        </div>
+
+        <button type="submit" class="btn btn-block">ذخیره نمره</button>
+    </form>
+
+    <div class="actions">
+        <a href="/Professor/Assignments" class="btn">بازگشت</a>
+    </div>
+</div>
